@@ -7,6 +7,8 @@ use App\Lugar;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Input;
 
+use JWTAuth;
+
 class LugaresController extends Controller {
 
 
@@ -37,6 +39,8 @@ class LugaresController extends Controller {
 	 */
 	public function store()
 	{
+		$user = JWTAuth::parseToken()->authenticate();
+
 		$lugar = new Lugar;
 		$lugar->nombre = Input::get('nombre');
 		$lugar->categoria = Input::get('categoria');
@@ -48,6 +52,7 @@ class LugaresController extends Controller {
 		$lugar->instagram = Input::get('instagram');
 		$lugar->website = Input::get('website');
 		$lugar->coordenadas = Input::get('coordenadas');
+		$lugar->user = $user->id;
 
 		if($lugar->save()) {
 			return array('status' => 'Lugar creado con éxito');
@@ -73,6 +78,8 @@ class LugaresController extends Controller {
 		if($lugar->subcategoria) {
 			$lugar->subcategoria = $lugar->subcategoria();
 		}
+
+		$lugar->user = $lugar->user();
 		return $lugar;
 	}
 
@@ -84,6 +91,7 @@ class LugaresController extends Controller {
 	 */
 	public function update($id)
 	{
+		$user = JWTAuth::parseToken()->authenticate();
 		$lugar = Lugar::find($id);
 
 		$lugar->nombre = Input::get('nombre');
@@ -96,6 +104,10 @@ class LugaresController extends Controller {
 		$lugar->instagram = Input::get('instagram');
 		$lugar->website = Input::get('website');
 		$lugar->coordenadas = Input::get('coordenadas');
+
+		if($lugar->user != $user->id && $user->isAdmin != 0){
+			return array('status' => 'error', 'error' => 'No puede actualizar el lugar');
+		}
 
 		if($lugar->save()) {
 			return array('status' => 'Lugar actualizado con éxito');
@@ -112,6 +124,11 @@ class LugaresController extends Controller {
 	 */
 	public function destroy($id)
 	{
+		$user = JWTAuth::parseToken()->authenticate();
+		$lugar = Lugar::find($id);
+		if($lugar->user != $user->id && $user->isAdmin !=0){
+			return array('status' => 'error', 'error' => 'No puede eliminar el lugar.');
+		}
 		if(Lugar::destroy($id)) {
 			return array('status' => 'Lugar eliminado con éxito.');
 		}
