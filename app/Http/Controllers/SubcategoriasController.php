@@ -10,6 +10,12 @@ use Illuminate\Support\Facades\Input;
 
 class SubcategoriasController extends Controller {
 
+
+	public function __construct()
+	{
+		$this->middleware('jwt.auth', ['except' => ['index', 'show']]);
+	}
+
 	/**
 	 * Display a listing of the resource.
 	 *
@@ -32,6 +38,12 @@ class SubcategoriasController extends Controller {
 	 */
 	public function store()
 	{
+
+		$user = JWTAuth::parseToken()->authenticate();
+		if(!$user->isAdmin) {
+			return response()->json(['status' => 'error', 'error' => 'No puede crear una subcategoria.'], 401);
+		}
+
 		$subcategoria = new Subcategoria;
 		$subcategoria->nombre = Input::get('nombre');
 		$subcategoria->icono = Input::get('icono');
@@ -67,6 +79,12 @@ class SubcategoriasController extends Controller {
 	 */
 	public function update($id)
 	{
+
+		$user = JWTAuth::parseToken()->authenticate();
+		if(!$user->isAdmin) {
+			return response()->json(['status' => 'error', 'error' => 'No puede actualizar una subcategoria.'], 401);
+		}
+
 		$subcategoria = Subcategoria::find($id);
 		$subcategoria->nombre = Input::get('nombre');
 		$subcategoria->icono = Input::get('icono');
@@ -88,6 +106,12 @@ class SubcategoriasController extends Controller {
 	 */
 	public function destroy($id)
 	{
+
+		$user = JWTAuth::parseToken()->authenticate();
+		if(!$user->isAdmin) {
+			return response()->json(['status' => 'error', 'error' => 'No puede eliminar una subcategoria.'], 401);
+		}
+
 		if(Subcategoria::destroy($id)){
 			return array('status' => 'Subcategoria eliminada con éxito');
 		}

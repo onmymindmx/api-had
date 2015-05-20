@@ -19,7 +19,8 @@ class Lugar extends Model {
         'categoria' => 'required|exists:categorias,id',
         'subcategoria' => 'exists:subcategorias,id',
         'direccion' => 'required',
-        'coordenadas' => 'required'
+        'coordenadas' => 'required',
+        'user' => 'required',
     ];
 
     protected $validationMessages = [
@@ -28,7 +29,8 @@ class Lugar extends Model {
         'categoria.exists' => "La categoria no existe.",
         'subcategoria.exists' => "La subcategoria no existe.",
         'direccion.required' => "El lugar necesita una dirección.",
-        'coordenadas.required' => "Debe de mencionar las coordenadas del lugar."
+        'coordenadas.required' => "Debe de mencionar las coordenadas del lugar.",
+        'user.required' => "El lugar debe de tener un propietario."
     ];
 
 	public function categoria() {
@@ -37,6 +39,10 @@ class Lugar extends Model {
 
     public function subcategoria() {
         return $this->belongsTo('App\Subcategoria', 'subcategoria')->select('id', 'nombre')->get()->first();
+    }
+
+    public function user() {
+        return $this->belongsTo('App\User', 'user')->select('id', 'first_name', 'last_name', 'username', 'email')->get()->first();
     }
 
     public function setCoordenadasAttribute($value) {

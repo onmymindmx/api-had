@@ -7,7 +7,15 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Input;
 
+use JWTAuth;
+
 class CategoriasController extends Controller {
+
+
+	public function __construct()
+	{
+		$this->middleware('jwt.auth', ['except' => ['index', 'show']]);
+	}
 
 	/**
 	 * Display a listing of the resource.
@@ -28,6 +36,12 @@ class CategoriasController extends Controller {
 	 */
 	public function store()
 	{
+		$user = JWTAuth::parseToken()->authenticate();
+
+		if(!$user->isAdmin) {
+			return response()->json(['status' => 'error', 'error' => 'No puede crear una nueva categoria.'], 401);
+		}
+
 		$categoria = new Categoria();
 		$categoria->nombre = Input::get('nombre');
 		$categoria->icono = Input::get('icono');
@@ -60,6 +74,13 @@ class CategoriasController extends Controller {
 	 */
 	public function update($id)
 	{
+
+		$user = JWTAuth::parseToken()->authenticate();
+
+		if(!$user->isAdmin) {
+			return response()->json(['status' => 'error', 'error' => 'No puede editar una categoria.'], 401);
+		}
+
 		$categoria = Categoria::find($id);
 		$categoria->nombre = Input::get('nombre');
 		$categoria->icono = Input::get('icono');
@@ -79,6 +100,12 @@ class CategoriasController extends Controller {
 	 */
 	public function destroy($id)
 	{
+
+		$user = JWTAuth::parseToken()->authenticate();
+		if(!$user->isAdmin) {
+			return response()->json(['status' => 'error', 'error' => 'No puede eliminar una categoria.'], 401);
+		}
+
 		if(Categoria::destroy($id)){
 			return array('status' => 'Categoria eliminada con éxito!');
 		}
