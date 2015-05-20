@@ -105,8 +105,8 @@ class LugaresController extends Controller {
 		$lugar->website = Input::get('website');
 		$lugar->coordenadas = Input::get('coordenadas');
 
-		if($lugar->user != $user->id && $user->isAdmin != 0){
-			return array('status' => 'error', 'error' => 'No puede actualizar el lugar');
+		if($lugar->user != $user->id && !$user->isAdmin){
+			return response()->json(['status' => 'error', 'error' => 'No puede actualizar el lugar.'], 401);
 		}
 
 		if($lugar->save()) {
@@ -126,8 +126,8 @@ class LugaresController extends Controller {
 	{
 		$user = JWTAuth::parseToken()->authenticate();
 		$lugar = Lugar::find($id);
-		if($lugar->user != $user->id && $user->isAdmin !=0){
-			return array('status' => 'error', 'error' => 'No puede eliminar el lugar.');
+		if($lugar->user != $user->id && !$user->isAdmin){
+			return response()->json(['status' => 'error', 'error' => 'No puede eliminar el lugar.'], 401);
 		}
 		if(Lugar::destroy($id)) {
 			return array('status' => 'Lugar eliminado con éxito.');
