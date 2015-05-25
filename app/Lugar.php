@@ -64,4 +64,15 @@ class Lugar extends Model {
         return parent::newQuery($excludeDeleted)->addSelect('*',DB::raw($raw));
     }
 
+    public function getLatLng(){
+        if(!$coordenadas = $this->attributes['coordenadas']){
+            return null;
+        }
+        $loc = substr($coordenadas, 6);
+        $loc = preg_replace('/[ ,]+/', ',', $loc, 1);
+        $loc = substr($loc, 0, -1);
+        $loc = explode(',', $loc);
+        $latLng = array("lat"=>(float)$loc[0], "lng" =>(float)$loc[1]);
+        return $latLng;
+    }
 }

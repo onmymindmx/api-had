@@ -28,6 +28,9 @@ class LugaresController extends Controller {
 		foreach($lugares as $lugar){
 			$lugar->categoria = $lugar->categoria();
 			$lugar->subcategoria = $lugar->subcategoria();
+			if($lugar->coordenadas) {
+				$lugar->latLng = $lugar->getLatLng();
+			}
 		}
 		return $lugares;
 	}
@@ -77,6 +80,10 @@ class LugaresController extends Controller {
 
 		if($lugar->subcategoria) {
 			$lugar->subcategoria = $lugar->subcategoria();
+		}
+
+		if($lugar->coordenadas) {
+			$lugar->latLng = $lugar->getLatLng();
 		}
 
 		$lugar->user = $lugar->user();
