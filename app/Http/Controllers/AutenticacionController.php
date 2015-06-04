@@ -34,8 +34,12 @@ class AutenticacionController extends Controller
             return Response::json(['message' => 'Este nombre de usuario ya está utilizado.'],401);
         }
 
-        $credentials = Input::only('email', 'password', 'username');
-        $credentials = array('email' => $credentials['email'], 'password' => $credentials['password'], 'username' => $credentials['username']);
+        $credentials = Input::only('email', 'password', 'username', 'first_name', 'last_name');
+
+        $credentials = array('email' => $credentials['email'], 'password' => $credentials['password'],
+                            'username' => $credentials['username'], 'first_name' => $credentials['first_name'],
+                            'last_name' => $credentials['last_name']);
+
         try {
             $user = User::create($credentials);
         } catch (Exception $e) {
