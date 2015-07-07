@@ -21,3 +21,4 @@ Route::group(['prefix'=>'v1'], function()
 
 Route::post('/login', 'AutenticacionController@login');
 Route::post('/signup', 'AutenticacionController@signup');
+Route::get('/profile', 'AutenticacionController@restricted');
