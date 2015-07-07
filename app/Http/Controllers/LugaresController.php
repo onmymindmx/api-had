@@ -56,6 +56,7 @@ class LugaresController extends Controller {
 		$lugar->website = Input::get('website');
 		$lugar->coordenadas = Input::get('coordenadas');
 		$lugar->user = $user->id;
+		$lugar->descripcion = Input::get('descripcion');
 
 		if($lugar->save()) {
 			return array('status' => 'Lugar creado con éxito');
@@ -111,6 +112,7 @@ class LugaresController extends Controller {
 		$lugar->instagram = Input::get('instagram');
 		$lugar->website = Input::get('website');
 		$lugar->coordenadas = Input::get('coordenadas');
+		$lugar->descripcion = Input::get('descripcion');
 
 		if($lugar->user != $user->id && !$user->isAdmin){
 			return response()->json(['status' => 'error', 'error' => 'No puede actualizar el lugar.'], 401);

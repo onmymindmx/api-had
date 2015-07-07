@@ -21,6 +21,7 @@ class Lugar extends Model {
         'direccion' => 'required',
         'coordenadas' => 'required',
         'user' => 'required',
+        'descripcion' => 'required'
     ];
 
     protected $validationMessages = [
@@ -30,7 +31,8 @@ class Lugar extends Model {
         'subcategoria.exists' => "La subcategoria no existe.",
         'direccion.required' => "El lugar necesita una dirección.",
         'coordenadas.required' => "Debe de mencionar las coordenadas del lugar.",
-        'user.required' => "El lugar debe de tener un propietario."
+        'user.required' => "El lugar debe de tener un propietario.",
+        'descripcion.required' => "El lugar debe de llevar una descripción."
     ];
 
 	public function categoria() {
