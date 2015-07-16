@@ -22,10 +22,13 @@ class LugaresController extends Controller {
 	 *
 	 * @return Response
 	 */
-	public function index()
+	public function index(Request $request)
 	{
 		$lugares = Lugar::all();
 		foreach($lugares as $lugar){
+			if($request->input('coords')){
+				$lugar["distancia"] = $lugar->getDistance($request->input('coords'));
+			}
 			$lugar->categoria = $lugar->categoria();
 			$lugar->subcategoria = $lugar->subcategoria();
 			if($lugar->coordenadas) {

@@ -77,4 +77,42 @@ class Lugar extends Model {
         $latLng = array("lat"=>(float)$loc[0], "lng" =>(float)$loc[1]);
         return $latLng;
     }
+
+    public function getDistance($coords){
+        $coordsUser = explode(',', $coords);
+        $latUser = $coordsUser[0];
+        $lngUser = $coordsUser[1];
+        $coordsPlace = explode(',', $this->getCoordenadasAttribute($this->attributes['coordenadas']));
+        $latPlace = $coordsPlace[0];
+        $lngPlace = $coordsPlace[1];
+        $distance = $this->calculateDistance($latUser, $lngUser, $latPlace, $lngPlace);
+        return $distance;
+
+    }
+
+    /**
+     * @param $latUser
+     * @param $lngUser
+     * @param $latPlace
+     * @param $lngPlace
+     * @param int $radioTierra
+     * @return float
+     * @link http://stackoverflow.com/a/10054282
+     */
+    function calculateDistance($latUser, $lngUser, $latPlace, $lngPlace, $radioTierra = 6371000){
+        // Convertimos los grados a radiales
+        $latUser = deg2rad($latUser);
+        $lngUser = deg2rad($lngUser);
+        $latPlace = deg2rad($latPlace);
+        $lngPlace = deg2rad($lngPlace);
+
+        $lngDelta = $lngPlace - $lngUser;
+        $a = pow(cos($latPlace) * sin ($lngDelta), 2) +
+            pow(cos($latUser) * sin ($latPlace) - sin($latUser) * cos($latPlace) * cos($lngDelta), 2);
+        $b = sin($latUser) * sin($latPlace) + cos($latUser) * cos($latPlace) * cos($lngDelta);
+
+        $angle = atan2(sqrt($a), $b);
+        $distance = $angle * $radioTierra;
+        return round($distance);
+    }
 }
