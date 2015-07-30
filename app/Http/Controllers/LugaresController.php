@@ -22,10 +22,13 @@ class LugaresController extends Controller {
 	 *
 	 * @return Response
 	 */
-	public function index()
+	public function index(Request $request)
 	{
 		$lugares = Lugar::all();
 		foreach($lugares as $lugar){
+			if($request->input('coords')){
+				$lugar["distancia"] = $lugar->getDistance($request->input('coords'));
+			}
 			$lugar->categoria = $lugar->categoria();
 			$lugar->subcategoria = $lugar->subcategoria();
 			if($lugar->coordenadas) {
@@ -50,12 +53,13 @@ class LugaresController extends Controller {
 		$lugar->subcategoria = Input::get('subcategoria');
 		$lugar->telefono = Input::get('telefono');
 		$lugar->direccion = Input::get('direccion');
-		$lugar->facebook = Input::get('facebook');
-		$lugar->twitter = Input::get('twitter');
-		$lugar->instagram = Input::get('instagram');
+		$lugar->facebook = $this->limpiarUrl(Input::get('facebook'), 'facebook');
+		$lugar->twitter = $this->limpiarUrl(Input::get('twitter'), 'twitter');
+		$lugar->instagram = $this->limpiarUrl(Input::get('instagram'), 'instagram');
 		$lugar->website = Input::get('website');
 		$lugar->coordenadas = Input::get('coordenadas');
 		$lugar->user = $user->id;
+		$lugar->descripcion = Input::get('descripcion');
 
 		if($lugar->save()) {
 			return array('status' => 'Lugar creado con éxito');
@@ -111,6 +115,7 @@ class LugaresController extends Controller {
 		$lugar->instagram = Input::get('instagram');
 		$lugar->website = Input::get('website');
 		$lugar->coordenadas = Input::get('coordenadas');
+		$lugar->descripcion = Input::get('descripcion');
 
 		if($lugar->user != $user->id && !$user->isAdmin){
 			return response()->json(['status' => 'error', 'error' => 'No puede actualizar el lugar.'], 401);
@@ -141,6 +146,31 @@ class LugaresController extends Controller {
 		}
 
 		return array('status' => 'No se pudo eliminar el lugar.');
+	}
+
+	public function limpiarUrl($urlLugar, $pagina)
+	{
+		switch($pagina){
+			case 'facebook':
+				$urlBase = 'facebook.com';
+				break;
+			case 'twitter':
+				$urlBase = 'twitter.com';
+				break;
+			case 'instagram';
+				$urlBase = 'instagram.com';
+				break;
+		}
+
+		$pos = stripos($urlLugar, $urlBase);
+		if($pos !== false){
+			$x = $pos + strlen($urlBase);
+			return substr($urlLugar, $x);
+		} else {
+			return $urlLugar;
+		}
+
+
 	}
 
 }

@@ -4,6 +4,9 @@ use App\Http\Requests;
 use App\Http\Controllers\Controller;
 
 use App\User;
+use App\Lugar;
+use App\Categoria;
+use App\Subcategoria;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Input;
@@ -18,7 +21,7 @@ class AutenticacionController extends Controller
 
     public function __construct()
     {
-        $this->middleware('jwt.auth', ['only' => ['restricted']]);
+        $this->middleware('jwt.auth', ['only' => ['perfil', 'lugares']]);
     }
 
 	public function signup()
@@ -34,8 +37,12 @@ class AutenticacionController extends Controller
             return Response::json(['message' => 'Este nombre de usuario ya está utilizado.'],401);
         }
 
-        $credentials = Input::only('email', 'password', 'username');
-        $credentials = array('email' => $credentials['email'], 'password' => $credentials['password'], 'username' => $credentials['username']);
+        $credentials = Input::only('email', 'password', 'username', 'first_name', 'last_name');
+
+        $credentials = array('email' => $credentials['email'], 'password' => $credentials['password'],
+                            'username' => $credentials['username'], 'first_name' => $credentials['first_name'],
+                            'last_name' => $credentials['last_name']);
+
         try {
             $user = User::create($credentials);
         } catch (Exception $e) {
@@ -66,7 +73,7 @@ class AutenticacionController extends Controller
         return Response::json(compact('token'), 200);
     }
 
-    public function restricted()
+    public function perfil()
     {
         try {
 
@@ -90,6 +97,40 @@ class AutenticacionController extends Controller
 
         // the token is valid and we have found the user via the sub claim
         return response()->json(compact('user'));
+    }
+
+    public function lugares(){
+        try {
+
+            if (! $user = JWTAuth::parseToken()->authenticate()) {
+                return response()->json(['user_not_found'], 404);
+            }
+
+        } catch (Tymon\JWTAuth\Exceptions\TokenExpiredException $e) {
+
+            return response()->json(['token_expired'], $e->getStatusCode());
+
+        } catch (Tymon\JWTAuth\Exceptions\TokenInvalidException $e) {
+
+            return response()->json(['token_invalid'], $e->getStatusCode());
+
+        } catch (Tymon\JWTAuth\Exceptions\JWTException $e) {
+
+            return response()->json(['token_absent'], $e->getStatusCode());
+
+        }
+        $places = Lugar::where('user', $user->id)->select('id', 'nombre', 'categoria', 'subcategoria')->get();
+        foreach($places as $place){
+            // Como nada mas obtenemos un elemento, lo guardamos en un array
+            $categoria = Categoria::where('id', $place->categoria)->select('nombre')->get()->toArray();
+            // Después, usamos reset rebobina el puntero interno al primer elemento y devolver el valor del primer elemento del array.
+            $place->categoria = reset($categoria);
+
+            $subcategoria = Subcategoria::where('id', $place->subcategoria)->select('nombre')->get()->toArray();
+            $place->subcategoria = reset($subcategoria);
+        }
+
+        return response()->json($places);
     }
 
 }

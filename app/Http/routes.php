@@ -17,6 +17,8 @@ Route::group(['prefix'=>'v1'], function()
 	Route::resource('subcategorias', 'SubcategoriasController');
 	Route::resource('lugares', 'LugaresController');
 	Route::get('dashboard', 'DashboardController@home');
+	Route::get('mi-perfil', 'AutenticacionController@perfil');
+	Route::get('mis-lugares', 'AutenticacionController@lugares');
 });
 
 Route::post('/login', 'AutenticacionController@login');
