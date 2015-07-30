@@ -100,7 +100,7 @@ class Lugar extends Model {
      * @link http://stackoverflow.com/a/10054282
      */
     function calculateDistance($latUser, $lngUser, $latPlace, $lngPlace, $radioTierra = 6371000){
-        // Convertimos los grados a radiales
+        // Convertimos los grados a radianes
         $latUser = deg2rad($latUser);
         $lngUser = deg2rad($lngUser);
         $latPlace = deg2rad($latPlace);
