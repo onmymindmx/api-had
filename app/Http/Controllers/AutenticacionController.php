@@ -10,11 +10,16 @@ use App\Subcategoria;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Input;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Facades\View;
 use JWTAuth;
 use Tymon\JWTAuth\Exceptions\JWTException;
 use Tymon\JWTAuth\Exceptions\TokenExpiredException;
 use Tymon\JWTAuth\Exceptions\TokenInvalidException;
+use Illuminate\Support\Facades\DB;
+
+use Hash;
 
 class AutenticacionController extends Controller
 {
@@ -71,6 +76,66 @@ class AutenticacionController extends Controller
         $claims = ['user' => $user];
         $token = JWTAuth::attempt($credentials, $claims);
         return Response::json(compact('token'), 200);
+    }
+
+    public function recoverPassword()
+    {
+        if(Input::has('email')){
+            $email = Input::get('email');
+
+            $user = User::where('email', $email);
+            if(!$user->exists()){
+                return response()->json(['success'=>false, 'error'=>'Usuario no encontrado'], 404);
+            }
+
+            $user = $user->first();
+            $reset_code = str_random(60);
+            $reset_token = str_random(10);
+            $user->reset_code = $reset_code;
+            $user->reset_token = $reset_token;
+            if($user->save()){
+                return view('emails.password', array('token'=>$reset_code));
+            }
+
+            return response()->json(['success'=>false, 'error' => 'No se pudo iniciar el proceso de restauración de contraseña'], 500);
+
+        }
+
+        if(Input::has('code')){
+            $code = Input::get('code');
+            $user = User::where(DB::raw('BINARY reset_code'), $code);
+            if(!$user->exists()){
+                return response()->json(['success'=>false, 'error'=>'invalid code'], 500);
+            }
+            $user = $user->first();
+
+            return response()->json(['success'=>true, 'message'=>'valid code', 'token'=>$user->reset_token], 200);
+        }
+
+        return response()->json(['error'=>'Wrong request'], 500);
+    }
+
+    public function changePassword()
+    {
+        if(Input::has('reset_token')){
+            $reset_token = Input::get('reset_token');
+            $user = User::where(DB::raw('BINARY reset_token'), $reset_token);
+            if(!$user->exists()){
+                return response()->json(['success'=>false, 'error'=>'invalid token'], 500);
+            }
+
+            if(!Input::has('password')) {
+                return response()->json(['success' => false, 'error' => 'Debe de escribir un password'], 500);
+            }
+
+            $user = $user->first();
+            $user->password = Input::get('password');
+            if($user->save()){
+                return response()->json(['success'=>true, 'message'=>'Contraseña cambiada'], 200);
+            }
+
+            return response()->json(['success'=>false, 'error'=>'No se pudo cambiar la contraseña'], 500);
+        }
     }
 
     public function perfil()
