@@ -23,3 +23,5 @@ Route::group(['prefix'=>'v1'], function()
 
 Route::post('/login', 'AutenticacionController@login');
 Route::post('/signup', 'AutenticacionController@signup');
+Route::post('/recover-password', 'AutenticacionController@recoverPassword');
+Route::post('/change-password', 'AutenticacionController@changePassword');
