@@ -89,12 +89,20 @@ class AutenticacionController extends Controller
             }
 
             $user = $user->first();
-            $reset_code = str_random(60);
+            $reset_code = str_random(30);
             $reset_token = str_random(10);
             $user->reset_code = $reset_code;
             $user->reset_token = $reset_token;
             if($user->save()){
-                return view('emails.password', array('token'=>$reset_code));
+                Mail::send('emails.password', array('token'=>$reset_code), function($message)
+                {
+                    $email = Input::get('email');
+                    $message->subject('Restauración de contraseña de ¿Hoy a dónde?');
+
+                    $message->to($email);
+
+                });
+                return response()->json(['success'=>true, 'message'=>'Correo de restauración enviado']);
             }
 
             return response()->json(['success'=>false, 'error' => 'No se pudo iniciar el proceso de restauración de contraseña'], 500);
@@ -105,11 +113,11 @@ class AutenticacionController extends Controller
             $code = Input::get('code');
             $user = User::where(DB::raw('BINARY reset_code'), $code);
             if(!$user->exists()){
-                return response()->json(['success'=>false, 'error'=>'invalid code'], 500);
+                return response()->json(['success'=>false, 'error'=>'Código inválido'], 500);
             }
             $user = $user->first();
 
-            return response()->json(['success'=>true, 'message'=>'valid code', 'token'=>$user->reset_token], 200);
+            return response()->json(['success'=>true, 'message'=>'Código válido', 'token'=>$user->reset_token], 200);
         }
 
         return response()->json(['error'=>'Wrong request'], 500);
@@ -130,6 +138,8 @@ class AutenticacionController extends Controller
 
             $user = $user->first();
             $user->password = Input::get('password');
+            $user->reset_code = null;
+            $user->reset_token = null;
             if($user->save()){
                 return response()->json(['success'=>true, 'message'=>'Contraseña cambiada'], 200);
             }
