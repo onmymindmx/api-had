@@ -94,7 +94,8 @@ class AutenticacionController extends Controller
             $user->reset_code = $reset_code;
             $user->reset_token = $reset_token;
             if($user->save()){
-                Mail::send('emails.password', array('token'=>$reset_code), function($message)
+                $url = env('URL_HAD', 'http://www.hoyadonde.omm/');
+                Mail::send('emails.password', array('token'=>$reset_code, 'url'=>$url), function($message)
                 {
                     $email = Input::get('email');
                     $message->subject('Restauración de contraseña de ¿Hoy a dónde?');

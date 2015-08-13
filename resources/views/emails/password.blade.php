@@ -484,7 +484,7 @@
 
                                                                 <p><span style="line-height:1.6em">Para poder recuperar tu cuenta, únicamente haz click en el siguiente enlace:</span></p>
 
-                                                                <p style="text-align: center;"><a class="mc-template-link" href="http://hoyadonde.omm/#!/restaurar-password/<?= $token ?>" style="line-height: 1.6em; font-size: 0.9em;">http://www.hoyadonde.omm/#!/restaurar-password/<?= $token ?></a></p>
+                                                                <p style="text-align: center;"><a class="mc-template-link" href="<?= $url ?>#!/restaurar-password/<?= $token ?>" style="line-height: 1.6em; font-size: 0.9em;"><?= $url ?>#!/restaurar-password/<?= $token ?></a></p>
 
                                                                 <p style="text-align: left;">¿Recibiste este correo por accidente? Si tu no solicitaste una restauración de tu cuenta, por favor ignora éste correo.</p>
 
